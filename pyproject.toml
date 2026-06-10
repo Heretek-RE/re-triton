@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "re-triton"
+version = "0.1.0"
+description = "MCP server exposing the Triton library for symbolic execution and constraint solving."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+keywords = ["mcp", "triton", "symbolic-execution", "taint-analysis", "constraint-solving", "smt", "z3"]
+authors = [{name = "John"}]
+dependencies = [
+    "mcp[cli]>=1.2",
+    # Quarkslab Triton — the binary-analysis / symbolic-execution framework.
+    # The PyPI `triton` package is the GPU compiler (triton-lang/triton) and
+    # is NOT what re-triton needs. The upstream pyproject advertises the
+    # distribution as `triton-library` (not `triton`) to avoid the collision
+    # with the GPU compiler. Install under that name; the Python import is
+    # still `import triton` so the server source code is unaffected.
+    "triton-library @ git+https://github.com/JonathanSalwan/Triton",
+    # z3-solver — the pure-Python Z3 binding used by solve_constraint() to
+    # evaluate constraint-expression strings. The C++ Quarkslab Triton build
+    # uses libz3 (system z3-devel), but the MCP tool that takes a Python
+    # expression and solves it needs this separate package.
+    "z3-solver>=4.12",
+    "pydantic>=2.6",
+]
+
+[project.scripts]
+re-triton = "re_triton.server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"
